@@ -1,0 +1,24 @@
+spring:
+
+  datasource:
+    password: ${POSTGRES_PASSWORD:password}
+    username: ${POSTGRES_USER:admin}
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+service:
+  b:
+    url: ${DATA_API_URL:http://localhost:8081/api/transform}
+    internal-token: ${INTERNAL_TOKEN:super-secret-token}
+
+jwt:
+  secret: ${JWT_SECRET:super-long-secret-key-for-test-app-in-winwin.travel-company}
+  expiration: ${JWT_EXPIRATION_TIME:86400000}

@@ -1,0 +1,59 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+
+  auth-api:
+    build:
+      context: auth-api
+      dockerfile: Dockerfile
+    container_name: auth-api
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/db
+      DATA_API_URL: http://data-api:8081/api/transform
+      INTERNAL_TOKEN: super-secret-token
+      JWT_SECRET: super-long-secret-key-for-test-app-in-winwin.travel-company
+      JWT_EXPIRATION_TIME: 86400000
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+
+  data-api:
+    build:
+      context: data-api
+      dockerfile: Dockerfile
+    container_name: data-api
+    environment:
+      INTERNAL_TOKEN: super-secret-token
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+networks:
+  app-network:
